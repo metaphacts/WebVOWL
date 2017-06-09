@@ -10,7 +10,7 @@ module.exports = function () {
 		filterMenu = require("./menu/filterMenu")(graph),
 		gravityMenu = require("./menu/gravityMenu")(graph),
 		modeMenu = require("./menu/modeMenu")(graph),
-		ontologyMenu = require("./menu/ontologyMenu")(graph),
+		//ontologyMenu = require("./menu/ontologyMenu")(graph),
 		pauseMenu = require("./menu/pauseMenu")(graph),
 		resetMenu = require("./menu/resetMenu")(graph),
 		searchMenu = require("./menu/searchMenu")(graph),
@@ -33,7 +33,7 @@ module.exports = function () {
 		progress=document.getElementById("myProgress"),
 		setOperatorFilter = webvowl.modules.setOperatorFilter();
 
-	app.initialize = function () {
+	app.initialize = function (data) {
 		options.graphContainerSelector(GRAPH_SELECTOR);
 		options.selectionModules().push(focuser);
 		options.selectionModules().push(selectionDetailDisplayer);
@@ -59,7 +59,7 @@ module.exports = function () {
 		modeMenu.setup(pickAndPin, nodeScalingSwitch, compactNotationSwitch, colorExternalsSwitch);
 		pauseMenu.setup();
 		sidebar.setup();
-		ontologyMenu.setup(loadOntologyFromText);
+		//ontologyMenu.setup(loadOntologyFromText);
 		resetMenu.setup([gravityMenu, filterMenu, modeMenu, focuser, selectionDetailDisplayer, pauseMenu]);
 		searchMenu.setup();
 		navigationMenu.setup();
@@ -73,10 +73,13 @@ module.exports = function () {
 		options.pickAndPinModule(pickAndPin);
 		options.resetMenu(resetMenu);
 		options.searchMenu(searchMenu);
-		options.ontologyMenu(ontologyMenu);
+		//options.ontologyMenu(ontologyMenu);
 		options.navigationMenu(navigationMenu);
 		options.sidebar(sidebar);
+		options.data(data);
 		graph.start();
+		adjustSize();
+		sidebar.updateOntologyInformation(data, statistics);
 		adjustSize();
 	};
 
@@ -101,7 +104,7 @@ module.exports = function () {
 			if (validJSON===false){
 				// the server output is not a valid json file
 				console.log("Retrieved data is not valid! (JSON.parse Error)");
-				ontologyMenu.emptyGraphError();
+				//ontologyMenu.emptyGraphError();
 				return;
 			}
 
@@ -126,11 +129,11 @@ module.exports = function () {
 
 		if (classCount === 0 && objectPropertyCount===0 && datatypePropertyCount===0 ){
 			// generate message for the user;
-			ontologyMenu.emptyGraphError();
+			//ontologyMenu.emptyGraphError();
 		}
 
 		exportMenu.setJsonText(jsonText);
-		options.data(data);
+		options.data(datatypeFilter);
 		graph.load();
 		
 		sidebar.updateOntologyInformation(data, statistics);
@@ -140,10 +143,12 @@ module.exports = function () {
 	function adjustSize() {
 		var graphContainer = d3.select(GRAPH_SELECTOR),
 			svg = graphContainer.select("svg"),
-			height = window.innerHeight - 40,
-			width = window.innerWidth - (window.innerWidth * 0.22);
+			// height = window.innerHeight - 40,
+			// width = window.innerWidth - (window.innerWidth * 0.22);
+			height = d3.select('.webvowl-import').node().getBoundingClientRect().height,
+			width = d3.select('.webvowl-import').node().getBoundingClientRect().width;
 
-		graphContainer.style("height", height + "px");
+		graphContainer.style("height", "auto");
 		svg.attr("width", width)
 			.attr("height", height);
 
